@@ -24,4 +24,4 @@ for i in range(0, len(cam_info), 10):
     )
     tmp =  renderer.render_mesh(object) * 255
     images[i:i + 10] = tmp.detach().cpu().numpy().astype(np.uint8)
-np.save(images, parent + '/../data/output.npy')
+np.save(parent + '/../data/output.npy', images)
