@@ -86,14 +86,18 @@ def main():
     camera_distances = torch.from_numpy(cameras[:, 0])
     elevations = torch.from_numpy(cameras[:, 1])
     viewpoints = torch.from_numpy(cameras[:, 2])
-    renderer.transform.set_eyes_from_angles(camera_distances, elevations, viewpoints)
 
-    loop = tqdm.tqdm(list(range(0, 2000)))
+    epoch = int(len(images) / args.batch_size + .5)
+    loop = tqdm.tqdm(list(range(0, 2000 * epoch)))
     writer = imageio.get_writer(os.path.join(args.output_dir, 'deform.gif'), mode='I')
     for i in loop:
-        images_gt = torch.from_numpy(images).cuda()
+        m = (i * args.batch_size) % len(images)
+        n = min(m + args.batch_size, len(images))
+        images_gt = torch.from_numpy(images[m:n]).cuda()
 
-        mesh, laplacian_loss, flatten_loss = model(args.batch_size)
+        mesh, laplacian_loss, flatten_loss = model(n - m)
+        renderer.transform.set_eyes_from_angles(
+            camera_distances[m:n], elevations[m:n], viewpoints[m:n])
         images_pred = renderer.render_mesh(mesh)
 
         # optimize mesh with silhouette reprojection error and 
@@ -108,13 +112,13 @@ def main():
         loss.backward()
         optimizer.step()
 
-        if i % 100 == 0:
+        if i % epoch == 0:
             image = images_pred.detach().cpu().numpy()[0].transpose((1, 2, 0))
             writer.append_data((255*image).astype(np.uint8))
-            imageio.imsave(os.path.join(args.output_dir, 'deform_%05d.png'%i), (255*image[..., -1]).astype(np.uint8))
+            #imageio.imsave(os.path.join(args.output_dir, 'deform_%05d.png'%i), (255*image[..., -1]).astype(np.uint8))
 
     # save optimized mesh
-    model(1)[0].save_obj(os.path.join(args.output_dir, 'plane.obj'), save_texture=False)
+    model(1)[0].save_obj(os.path.join(args.output_dir, 'output.obj'), save_texture=False)
 
 
 if __name__ == '__main__':
