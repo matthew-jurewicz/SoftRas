@@ -8,8 +8,8 @@ file = sys.argv[1]
 renderer = sr.SoftRenderer(
     image_size=64, camera_mode='look_at', viewing_angle=15)
 parent = os.path.dirname(os.path.abspath(__file__))
-cam_info = torch.from_numpy(
-    np.load(parent + '/../data/camera.npy'))
+cam_info = np.load(parent + '/../data/camera.npy')
+cam_info = torch.from_numpy(cam_info.astype(np.float32))
 renderer.transform.set_eyes_from_angles(
     distances=cam_info[:,0], 
     elevations=cam_info[:,1], 
