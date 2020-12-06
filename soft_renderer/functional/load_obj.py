@@ -156,10 +156,8 @@ def load_obj(filename_obj, normalization=False, load_texture=False, texture_res=
 
     # normalize into a unit cube centered zero
     if normalization:
-        vertices -= vertices.min(0)[0][None, :]
-        vertices /= torch.abs(vertices).max()
-        vertices *= 2
-        vertices -= vertices.max(0)[0][None, :] / 2
+        vertices -= (vertices.max(dim=0) + vertices.min(dim=0)) / 2
+        vertices /= max(vertices.max(dim=0) - vertices.min(dim=0))
 
     if load_texture:
         return vertices, faces, textures

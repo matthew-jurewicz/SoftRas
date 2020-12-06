@@ -112,7 +112,7 @@ def main():
         loss.backward()
         optimizer.step()
 
-        if i % epoch == 0:
+        if i % (100 * epoch) == 0:
             image = images_pred.detach().cpu().numpy()[0].transpose((1, 2, 0))
             writer.append_data((255*image).astype(np.uint8))
             #imageio.imsave(os.path.join(args.output_dir, 'deform_%05d.png'%i), (255*image[..., -1]).astype(np.uint8))
