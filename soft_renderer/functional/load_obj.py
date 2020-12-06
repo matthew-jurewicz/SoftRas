@@ -156,8 +156,8 @@ def load_obj(filename_obj, normalization=False, load_texture=False, texture_res=
 
     # normalize into a unit cube centered zero
     if normalization:
-        vertices -= (vertices.max(dim=0) + vertices.min(dim=0)) / 2
-        vertices /= max(vertices.max(dim=0) - vertices.min(dim=0))
+        vertices -= (vertices.max(dim=0)[0] + vertices.min(dim=0)[0]) / 2
+        vertices /= max(vertices.max(dim=0)[0] - vertices.min(dim=0)[0])
 
     if load_texture:
         return vertices, faces, textures
